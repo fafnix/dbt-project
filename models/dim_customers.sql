@@ -4,30 +4,7 @@
     )
 }}
 
-with store_customers as (
-
-    select
-        customer_id,
-        first_name,
-        last_name
-
-    from customers
-
-),
-
-store_orders as (
-
-    select
-        order_id,
-        customer_id,
-        order_date,
-        status
-
-    from orders
-
-),
-
-customer_orders as (
+WITH customer_orders AS (
 
     select
         customer_id,
@@ -36,7 +13,7 @@ customer_orders as (
         max(order_date) as most_recent_order_date,
         count(order_id) as number_of_orders
 
-    from store_orders
+    from stg_orders
 
     group by 1
 
@@ -46,14 +23,14 @@ customer_orders as (
 final as (
 
     select
-        store_customers.customer_id,
-        store_customers.first_name,
-        store_customers.last_name,
+        stg_customers.customer_id,
+        stg_customers.first_name,
+        stg_customers.last_name,
         customer_orders.first_order_date,
         customer_orders.most_recent_order_date,
         coalesce(customer_orders.number_of_orders, 0) as number_of_orders
 
-    from store_customers
+    from stg_customers
 
     left join customer_orders using (customer_id)
 
